@@ -7,8 +7,8 @@
 # See /LICENSE for more information.
 #
 
-START=90
-STOP=15
+START=85
+STOP=20
 
 NAME=transparent-proxy
 
