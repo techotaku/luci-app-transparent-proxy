@@ -16,6 +16,12 @@ msgstr "存在"
 msgid "NOT EXIST"
 msgstr "不存在"
 
+msgid "RUNNING"
+msgstr "运行中"
+
+msgid "NOT RUNNING"
+msgstr "未运行"
+
 msgid "The connections will not be redirected unless the Proxy Rules exist."
 msgstr "只有当代理规则存在时，连接才会被重定向。"
 
@@ -57,6 +63,9 @@ msgstr "留空 - 作为全局代理"
 
 msgid "Bypassed IP"
 msgstr "额外被忽略IP"
+
+msgid "Won't redirect for these IPs. Make sure that your remote proxy server IP added here."
+msgstr "不会为这些 IP 重定向。 确保您的远程代理服务器 IP 已添加到此处。"
 
 msgid "Forwarded IP List"
 msgstr "走代理IP列表"

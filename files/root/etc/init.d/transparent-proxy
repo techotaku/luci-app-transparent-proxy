@@ -48,6 +48,7 @@ get_lan_hosts() {
 
 start_rules() {
 	local enable=$(uci_get_by_type general enable)
+	[ "$enable" = 0 ] && /usr/bin/transparent-proxy-rules -f
 	[ "$enable" = 1 ] || return 0
 	config_load $NAME
 	/usr/bin/transparent-proxy-rules \

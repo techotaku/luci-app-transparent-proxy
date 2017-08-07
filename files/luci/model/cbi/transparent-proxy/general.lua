@@ -19,8 +19,28 @@ m.template = "transparent-proxy/general"
 s = m:section(TypedSection, "general", translate("Working Status"))
 s.anonymous = true
 
-o = s:option(DummyValue, "_status", translate("Proxy Rules"), translate("The connections will not be redirected unless the Proxy Rules exist."))
-o.value = "<span id=\"_status\">%s</span>" %{translate("Collecting data...")}
+o = s:option(DummyValue, "_status_rules", translate("Proxy Rules"), translate("The connections will not be redirected unless the Proxy Rules exist."))
+o.value = "<span id=\"_status_rules\">%s</span>" %{translate("Collecting data...")}
+o.rawhtml = true
+
+o = s:option(DummyValue, "_status_ss_redir", translate("Shadowsocks"))
+o.value = "<span id=\"_status_ss_redir\">%s</span>" %{translate("Collecting data...")}
+o.rawhtml = true
+
+o = s:option(DummyValue, "_status_ssr_redir", translate("ShadowsocksR"))
+o.value = "<span id=\"_status_ssr_redir\">%s</span>" %{translate("Collecting data...")}
+o.rawhtml = true
+
+o = s:option(DummyValue, "_status_v2ray", translate("V2Ray"))
+o.value = "<span id=\"_status_v2ray\">%s</span>" %{translate("Collecting data...")}
+o.rawhtml = true
+
+o = s:option(DummyValue, "_status_redsocks", translate("Redsocks"))
+o.value = "<span id=\"_status_redsocks\">%s</span>" %{translate("Collecting data...")}
+o.rawhtml = true
+
+o = s:option(DummyValue, "_status_redsocks2", translate("Redsocks2"))
+o.value = "<span id=\"_status_redsocks2\">%s</span>" %{translate("Collecting data...")}
 o.rawhtml = true
 
 s = m:section(TypedSection, "general", translate("Global Settings"))
