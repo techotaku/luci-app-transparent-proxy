@@ -3,7 +3,7 @@
 -- Licensed to the public under the GNU General Public License v3.
 
 local m, s, o
-local transparent-proxy = "transparent-proxy"
+local transparent_proxy = "transparent-proxy"
 local uci = luci.model.uci.cursor()
 local nwm = require("luci.model.network").init()
 local lan_ifaces = {}
@@ -18,7 +18,7 @@ for _, net in ipairs(nwm:get_networks()) do
 	end
 end
 
-m = Map(transparent-proxy, "%s - %s" %{translate("Transparent Proxy"), translate("Access Control")})
+m = Map(transparent_proxy, "%s - %s" %{translate("Transparent Proxy"), translate("Access Control")})
 
 -- [[ Zone WAN ]]--
 s = m:section(TypedSection, "access_control", translate("Zone WAN"))

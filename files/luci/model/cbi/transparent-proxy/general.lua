@@ -3,7 +3,7 @@
 -- Licensed to the public under the GNU General Public License v3.
 
 local m, s, o
-local transparent-proxy = "transparent-proxy"
+local transparent_proxy = "transparent-proxy"
 local uci = luci.model.uci.cursor()
 
 local function has_udp_relay()
@@ -12,7 +12,7 @@ end
 
 local has_tproxy = has_udp_relay()
 
-m = Map(transparent-proxy, "%s - %s" %{translate("Transparent Proxy"), translate("General Settings")})
+m = Map(transparent_proxy, "%s - %s" %{translate("Transparent Proxy"), translate("General Settings")})
 m.template = "transparent-proxy/general"
 
 -- [[ Running Status ]]--
@@ -37,10 +37,6 @@ o.rawhtml = true
 
 o = s:option(DummyValue, "_status_redsocks", translate("Redsocks"))
 o.value = "<span id=\"_status_redsocks\">%s</span>" %{translate("Collecting data...")}
-o.rawhtml = true
-
-o = s:option(DummyValue, "_status_redsocks2", translate("Redsocks2"))
-o.value = "<span id=\"_status_redsocks2\">%s</span>" %{translate("Collecting data...")}
 o.rawhtml = true
 
 s = m:section(TypedSection, "general", translate("Global Settings"))

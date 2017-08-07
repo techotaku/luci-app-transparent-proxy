@@ -13,26 +13,27 @@
 		var _status_ssr_redir = document.getElementById("_status_ssr_redir");
 		var _status_v2ray = document.getElementById("_status_v2ray");
 		var _status_redsocks = document.getElementById("_status_redsocks");
-		var _status_redsocks2 = document.getElementById("_status_redsocks2");
 
 		XHR.poll(5, "<%=luci.dispatcher.build_url("admin", "services", "transparent-proxy", "status")%>", null, function(x, status) {
 			if (_status_rules) {
 				_status_rules.textContent = status.rules ? "<%:EXIST%>" : "<%:NOT EXIST%>";
+				_status_rules.style = status.rules ? "color:green; font-weight: bold;" : "color:red; font-weight: normal;";
 			}
 			if (_status_ss_redir) {
 				_status_ss_redir.textContent = status.ss_redir ? "<%:RUNNING%>" : "<%:NOT RUNNING%>";
+				_status_ss_redir.style = status.ss_redir ? "color:green; font-weight: bold;" : "color:red; font-weight: normal;";
 			}
 			if (_status_ssr_redir) {
 				_status_ssr_redir.textContent = status.ssr_redir ? "<%:RUNNING%>" : "<%:NOT RUNNING%>";
+				_status_ssr_redir.style = status.ssr_redir ? "color:green; font-weight: bold;" : "color:red; font-weight: normal;";
 			}
 			if (_status_v2ray) {
 				_status_v2ray.textContent = status.v2ray ? "<%:RUNNING%>" : "<%:NOT RUNNING%>";
+				_status_v2ray.style = status.v2ray ? "color:green; font-weight: bold;" : "color:red; font-weight: normal;";
 			}
 			if (_status_redsocks) {
 				_status_redsocks.textContent = status.redsocks ? "<%:RUNNING%>" : "<%:NOT RUNNING%>";
-			}
-			if (_status_redsocks2) {
-				_status_redsocks2.textContent = status.redsocks2 ? "<%:RUNNING%>" : "<%:NOT RUNNING%>";
+				_status_redsocks.style = status.redsocks ? "color:green; font-weight: bold;" : "color:red; font-weight: normal;";
 			}
 		});
 	}());
