@@ -1,0 +1,18 @@
+<%#
+ Copyright (C) 2017 Jian Chang <aa65535@live.com>
+ Copyright (C) 2017 Ian Li <OpenSource@ianli.xyz>
+ Licensed to the public under the GNU General Public License v3.
+-%>
+
+<% include("cbi/map") %>
+
+<script type="text/javascript">//<![CDATA[
+	(function() {
+		var _status = document.getElementById("_status");
+		XHR.poll(5, "<%=luci.dispatcher.build_url("admin", "services", "transparent-proxy", "status")%>", null, function(x, status) {
+			if (_status) {
+				_status.textContent = status.status ? "<%:EXIST%>" : "<%:NOT EXIST%>";
+			}
+		});
+	}());
+//]]></script>
