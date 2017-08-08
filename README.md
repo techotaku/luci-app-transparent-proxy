@@ -1,4 +1,4 @@
-LEDE LuCI support for transparent proxy
+LuCI support for transparent proxy
 ===
 
 [![Latest release](https://img.shields.io/github/release/techotaku/luci-app-transparent-proxy.svg)](https://github.com/techotaku/luci-app-transparent-proxy/releases/latest)  
