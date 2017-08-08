@@ -1,7 +1,7 @@
 LEDE LuCI support for transparent proxy
 ===
 
-A LuCI tool, to manage port forwarding iptables / ipset rules.    
+A LuCI tool, to manage transparent port forwarding (iptables / ipset) rules.    
 Compatible with most proxy which accept redirected packets.    
 一个用于管理透明端口转发（iptables / ipset）规则的 LuCI 工具。    
 与大多数接受数据包转发的代理服务兼容。    
