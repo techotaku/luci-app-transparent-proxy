@@ -54,6 +54,10 @@ if has_tproxy then
 	o = s:option(Flag, "udp", translate("UDP Relay"))
 	o.default = "0"
 	o.rmempty = false
+
+  o = s:option(Flag, "tproxy", translate("Enable Tproxy"))
+	o.default = "0"
+	o.rmempty = false
 end
 
 o = s:option(Value, "startup_delay", translate("Startup Delay"))
