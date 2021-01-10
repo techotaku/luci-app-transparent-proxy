@@ -142,6 +142,8 @@ ipt_tproxy() {
 		$ipt -N TP_SPEC_WAN_DG
 		$ipt -A TP_SPEC_WAN_DG -m set --match-set tp_spec_dst_sp dst -j RETURN
 		$ipt -A TP_SPEC_WAN_DG -m mark --mark 0x64 -j RETURN
+		$ipt -A TP_SPEC_WAN_DG -m set --match-set tp_spec_dst_bp src -j RETURN
+		$ipt -A TP_SPEC_WAN_DG -m set --match-set tp_spec_dst_bp dst -j RETURN
 		$ipt -A TP_SPEC_WAN_DG -p tcp -j MARK --set-mark 1
 		if [ "$UDP_ENABLED" = 1 ]; then
 			$ipt -A TP_SPEC_WAN_DG -p udp -j MARK --set-mark 1
