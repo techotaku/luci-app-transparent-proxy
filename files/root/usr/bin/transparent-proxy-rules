@@ -54,12 +54,12 @@ flush_rules() {
 
 ipset_init() {
 	ipset -! restore <<-EOF || return 1
-		create tp_spec_src_ac hash:mac hashsize 64
-		create tp_spec_src_bp hash:mac hashsize 64
-		create tp_spec_src_fw hash:mac hashsize 64
-		create tp_spec_dst_sp hash:net hashsize 64
-		create tp_spec_dst_bp hash:net hashsize 64
-		create tp_spec_dst_fw hash:net hashsize 64
+		create tp_spec_src_ac hash:mac hashsize 64 timeout 0
+		create tp_spec_src_bp hash:mac hashsize 64 timeout 0
+		create tp_spec_src_fw hash:mac hashsize 64 timeout 0
+		create tp_spec_dst_sp hash:net hashsize 64 timeout 0
+		create tp_spec_dst_bp hash:net hashsize 64 timeout 0
+		create tp_spec_dst_fw hash:net hashsize 64 timeout 0
 		$(gen_lan_host_ipset_entry)
 		$(gen_special_purpose_ip | sed -e "s/^/add tp_spec_dst_sp /")
 		$(sed -e "s/^/add tp_spec_dst_bp /" ${WAN_BP_LIST:=/dev/null} 2>/dev/null)
