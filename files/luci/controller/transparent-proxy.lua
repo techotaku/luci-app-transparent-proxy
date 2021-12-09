@@ -41,6 +41,7 @@ function action_status()
 		ssr_redir = is_running("ssr-redir"),
 		v2ray = is_running("v2ray"),
 		xray = is_running("xray"),
+		clash = is_running("clash"),
 		redsocks = is_running("redsocks")
 	})
 end

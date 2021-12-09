@@ -39,6 +39,10 @@ o = s:option(DummyValue, "_status_xray", translate("Xray"))
 o.value = "<span id=\"_status_xray\">%s</span>" %{translate("Collecting data...")}
 o.rawhtml = true
 
+o = s:option(DummyValue, "_status_clash", translate("Clash"))
+o.value = "<span id=\"_status_clash\">%s</span>" %{translate("Collecting data...")}
+o.rawhtml = true
+
 o = s:option(DummyValue, "_status_redsocks", translate("Redsocks"))
 o.value = "<span id=\"_status_redsocks\">%s</span>" %{translate("Collecting data...")}
 o.rawhtml = true

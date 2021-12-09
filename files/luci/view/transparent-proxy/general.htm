@@ -36,6 +36,10 @@
 				_status_xray.textContent = status.xray ? "<%:RUNNING%>" : "<%:NOT RUNNING%>";
 				_status_xray.style = status.xray ? "color:green; font-weight: bold;" : "color:red; font-weight: normal;";
 			}
+			if (_status_clash) {
+				_status_clash.textContent = status.clash ? "<%:RUNNING%>" : "<%:NOT RUNNING%>";
+				_status_clash.style = status.clash ? "color:green; font-weight: bold;" : "color:red; font-weight: normal;";
+			}
 			if (_status_redsocks) {
 				_status_redsocks.textContent = status.redsocks ? "<%:RUNNING%>" : "<%:NOT RUNNING%>";
 				_status_redsocks.style = status.redsocks ? "color:green; font-weight: bold;" : "color:red; font-weight: normal;";
