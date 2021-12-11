@@ -33,6 +33,11 @@ get_arg_udp() {
 	[ "$udp" = 1 ] && echo "-u"
 }
 
+get_arg_tproxy() {
+	local tproxy=$(uci_get_by_type general tproxy)
+	[ "$tproxy" = 1 ] && echo "-t"
+}
+
 get_arg_out() {
 	case "$(uci_get_by_type access_control self_proxy 1)" in
 		1) echo "-o";;
@@ -64,7 +69,7 @@ create_when_enable() {
 		-d "$(uci_get_by_type access_control lan_target)" \
 		-a "$(config_foreach get_lan_hosts lan_hosts)" \
 		-e "$(uci_get_by_type access_control ipt_ext)" \
-		$(get_arg_out) $(get_arg_udp)
+		$(get_arg_out) $(get_arg_udp) $(get_arg_tproxy)
 }
 
 start() {

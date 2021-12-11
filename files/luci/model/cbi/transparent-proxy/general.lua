@@ -35,6 +35,14 @@ o = s:option(DummyValue, "_status_v2ray", translate("V2Ray"))
 o.value = "<span id=\"_status_v2ray\">%s</span>" %{translate("Collecting data...")}
 o.rawhtml = true
 
+o = s:option(DummyValue, "_status_xray", translate("Xray"))
+o.value = "<span id=\"_status_xray\">%s</span>" %{translate("Collecting data...")}
+o.rawhtml = true
+
+o = s:option(DummyValue, "_status_clash", translate("Clash"))
+o.value = "<span id=\"_status_clash\">%s</span>" %{translate("Collecting data...")}
+o.rawhtml = true
+
 o = s:option(DummyValue, "_status_redsocks", translate("Redsocks"))
 o.value = "<span id=\"_status_redsocks\">%s</span>" %{translate("Collecting data...")}
 o.rawhtml = true
@@ -48,6 +56,10 @@ o.rmempty = false
 
 if has_tproxy then
 	o = s:option(Flag, "udp", translate("UDP Relay"))
+	o.default = "0"
+	o.rmempty = false
+
+	o = s:option(Flag, "tproxy", translate("Enable Tproxy"))
 	o.default = "0"
 	o.rmempty = false
 end

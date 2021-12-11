@@ -13,21 +13,22 @@ usage() {
 
 		Valid options are:
 
-		    -l <local_port>         port number of local transparent proxy server
-		    -B <ip_list_file>       a file whose content is bypassed ip list
-		    -b <wan_ips>            wan ip of will be bypassed
-		    -W <ip_list_file>       a file whose content is forwarded ip list
-		    -w <wan_ips>            wan ip of will be forwarded
-		    -I <interface>          proxy only for the given interface
-		    -d <target>             the default target of lan access control
-		    -a <lan_hosts>          mac addr of access control, need a prefix to
-		                            define proxy type
-		    -e <extra_args>         extra arguments for iptables
-		    -o                      apply the rules to the OUTPUT chain
-		    -O                      apply the global rules to the OUTPUT chain
-		    -u                      enable udprelay mode, TPROXY is required
-		    -f                      flush the rules
-		    -h                      show this help message and exit
+				-l <local_port>         port number of local transparent proxy server
+				-B <ip_list_file>       a file whose content is bypassed ip list
+				-b <wan_ips>            wan ip of will be bypassed
+				-W <ip_list_file>       a file whose content is forwarded ip list
+				-w <wan_ips>            wan ip of will be forwarded
+				-I <interface>          proxy only for the given interface
+				-d <target>             the default target of lan access control
+				-a <lan_hosts>          mac addr of access control, need a prefix to
+                                define proxy type
+				-e <extra_args>         extra arguments for iptables
+				-o                      apply the rules to the OUTPUT chain
+				-O                      apply the global rules to the OUTPUT chain
+				-u                      enable udprelay mode, TPROXY is required
+				-t                      enable global tproxy mode, TPROXY is required
+				-f                      flush the rules
+				-h                      show this help message and exit
 EOF
 	exit $1
 }
@@ -53,12 +54,12 @@ flush_rules() {
 
 ipset_init() {
 	ipset -! restore <<-EOF || return 1
-		create tp_spec_src_ac hash:mac hashsize 64
-		create tp_spec_src_bp hash:mac hashsize 64
-		create tp_spec_src_fw hash:mac hashsize 64
-		create tp_spec_dst_sp hash:net hashsize 64
-		create tp_spec_dst_bp hash:net hashsize 64
-		create tp_spec_dst_fw hash:net hashsize 64
+		create tp_spec_src_ac hash:mac hashsize 64 timeout 0
+		create tp_spec_src_bp hash:mac hashsize 64 timeout 0
+		create tp_spec_src_fw hash:mac hashsize 64 timeout 0
+		create tp_spec_dst_sp hash:net hashsize 64 timeout 0
+		create tp_spec_dst_bp hash:net hashsize 64 timeout 0
+		create tp_spec_dst_fw hash:net hashsize 64 timeout 0
 		$(gen_lan_host_ipset_entry)
 		$(gen_special_purpose_ip | sed -e "s/^/add tp_spec_dst_sp /")
 		$(sed -e "s/^/add tp_spec_dst_bp /" ${WAN_BP_LIST:=/dev/null} 2>/dev/null)
@@ -73,7 +74,7 @@ ipt_nat() {
 	include_ac_rules nat
 	ipt="iptables -t nat"
 	$ipt -A TP_SPEC_WAN_FW -p tcp \
-		-j REDIRECT --to-ports $local_port || return 1
+		-j REDIRECT --to-ports $LOCAL_PORT || return 1
 	if [ -n "$OUTPUT" ]; then
 		$ipt -N TP_SPEC_WAN_DG
 		$ipt -A TP_SPEC_WAN_DG -m set --match-set tp_spec_dst_sp dst -j RETURN
@@ -84,7 +85,7 @@ ipt_nat() {
 }
 
 ipt_mangle() {
-	[ -n "$TPROXY" ] || return 0
+	[ -n "$UDP_ENABLED" ] || return 0
 	if !(lsmod | grep -q TPROXY && command -v ip >/dev/null); then
 		loger 4 "TPROXY or ip not found."
 		return 0
@@ -94,6 +95,62 @@ ipt_mangle() {
 	include_ac_rules mangle
 	iptables -t mangle -A TP_SPEC_WAN_FW -p udp \
 		-j TPROXY --on-port $LOCAL_PORT --tproxy-mark 0x01/0x01
+	return $?
+}
+
+# apply when global tproxy mode is enabled
+ipt_tproxy() {
+	[ -n "$TPROXY" ] || return 0
+	if !(lsmod | grep -q TPROXY && command -v ip >/dev/null); then
+		loger 4 "TPROXY or ip not found."
+		return 0
+	fi
+	ip rule add fwmark 1 lookup 100
+	ip route add local default dev lo table 100
+
+	local ipt="iptables -t mangle"
+	$ipt -N TP_SPEC_LAN_DG
+	$ipt -N TP_SPEC_LAN_AC
+	$ipt -N TP_SPEC_WAN_AC
+	$ipt -N TP_SPEC_WAN_FW
+
+	$ipt -A TP_SPEC_LAN_DG -m set --match-set tp_spec_dst_sp dst -j RETURN
+	$ipt -A TP_SPEC_LAN_DG -p tcp $EXT_ARGS -j TP_SPEC_LAN_AC
+	if [ -n "$UDP_ENABLED" ]; then
+		$ipt -A TP_SPEC_LAN_DG -p udp $EXT_ARGS -j TP_SPEC_LAN_AC
+	fi
+	$ipt -A TP_SPEC_LAN_AC -m set --match-set tp_spec_src_bp src -j RETURN
+	$ipt -A TP_SPEC_LAN_AC -m set --match-set tp_spec_src_fw src -j TP_SPEC_WAN_FW
+	$ipt -A TP_SPEC_LAN_AC -m set --match-set tp_spec_src_ac src -j TP_SPEC_WAN_AC
+	$ipt -A TP_SPEC_LAN_AC -j ${LAN_TARGET:=TP_SPEC_WAN_AC}
+	$ipt -A TP_SPEC_WAN_AC -m set --match-set tp_spec_dst_fw dst -j TP_SPEC_WAN_FW
+	$ipt -A TP_SPEC_WAN_AC -m set --match-set tp_spec_dst_bp dst -j RETURN
+	$ipt -A TP_SPEC_WAN_AC -j TP_SPEC_WAN_FW
+	$ipt $(gen_prerouting_rules "tcp")
+	if [ -n "$UDP_ENABLED" ]; then
+		$ipt $(gen_prerouting_rules "udp")
+	fi
+
+	$ipt -A TP_SPEC_WAN_FW -p tcp \
+		-j TPROXY --on-port $LOCAL_PORT --tproxy-mark 0x01/0x01
+	if [ "$UDP_ENABLED" = 1 ]; then
+		$ipt -A TP_SPEC_WAN_FW -p udp \
+			-j TPROXY --on-port $LOCAL_PORT --tproxy-mark 0x01/0x01
+	fi
+
+	if [ -n "$OUTPUT" ]; then
+		$ipt -N TP_SPEC_WAN_DG
+		$ipt -A TP_SPEC_WAN_DG -m set --match-set tp_spec_dst_sp dst -j RETURN
+		$ipt -A TP_SPEC_WAN_DG -m mark --mark 0x64 -j RETURN
+		$ipt -A TP_SPEC_WAN_DG -m set --match-set tp_spec_dst_bp src -j RETURN
+		$ipt -A TP_SPEC_WAN_DG -m set --match-set tp_spec_dst_bp dst -j RETURN
+		$ipt -A TP_SPEC_WAN_DG -p tcp -j MARK --set-mark 1
+		if [ "$UDP_ENABLED" = 1 ]; then
+			$ipt -A TP_SPEC_WAN_DG -p udp -j MARK --set-mark 1
+		fi
+		$ipt -I OUTPUT 1 -j TP_SPEC_WAN_DG
+	fi
+
 	return $?
 }
 
@@ -178,10 +235,20 @@ gen_prerouting_rules() {
 	done
 }
 
-while getopts ":s:l:S:L:B:b:W:w:I:d:a:e:oOuUfh" arg; do
+apply_ipt_rules() {
+	if [ -n "$TPROXY" ]; then
+		ipt_tproxy
+	else
+		ipt_nat && ipt_mangle
+	fi
+
+	return $?
+}
+
+while getopts ":s:l:S:L:B:b:W:w:I:d:a:e:oOuUtfh" arg; do
 	case "$arg" in
 		l)
-			local_port=$OPTARG
+			LOCAL_PORT=$OPTARG
 			;;
 		B)
 			WAN_BP_LIST=$OPTARG
@@ -214,6 +281,9 @@ while getopts ":s:l:S:L:B:b:W:w:I:d:a:e:oOuUfh" arg; do
 			OUTPUT=TP_SPEC_WAN_FW
 			;;
 		u)
+			UDP_ENABLED=1
+			;;
+		t)
 			TPROXY=1
 			;;
 		f)
@@ -226,13 +296,9 @@ while getopts ":s:l:S:L:B:b:W:w:I:d:a:e:oOuUfh" arg; do
 	esac
 done
 
-[ -z "$local_port" ] && usage 2
+[ -z "$LOCAL_PORT" ] && usage 2
 
-if [ "$TPROXY" = 1 ]; then
-	LOCAL_PORT=$local_port
-fi
-
-flush_rules && ipset_init && ipt_nat && ipt_mangle && export_ipt_rules
+flush_rules && ipset_init && apply_ipt_rules && export_ipt_rules
 RET=$?
 [ "$RET" = 0 ] || loger 3 "Start failed!"
 exit $RET
